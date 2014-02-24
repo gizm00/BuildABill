@@ -1,0 +1,182 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 3px;
+      }
+    </style>
+  
+    <script src="kinetic-v5.0.1.min.js"></script>
+    <script>
+      var scale = 0.2;
+      var maxWidth = 1400;
+     function loadImages(sources, callback){
+            var images = [];
+            var loadedImages = 0;
+            var numImages = 0;
+            for (var src in sources) {
+                numImages++;
+            }
+            for (var src in sources) {
+                images[src] = new Image();
+                images[src].onload = function(){
+                    if (++loadedImages >= numImages) {
+                        callback(images);
+                    }
+                };
+                images[src].src = sources[src];
+            }
+        }
+    
+    function initStage(images){
+              
+      var stage = new Kinetic.Stage({
+        container: 'container',
+        width: maxWidth,
+        height: 900
+      });
+      
+      var tools = new Kinetic.Stage({
+      	container: 'tools',
+      	width:600,
+      	height:900
+      });
+      
+      var layer = new Kinetic.Layer();
+      var imgLayer = new Kinetic.Layer();
+
+	  // background
+	  
+	  var backImage = new Kinetic.Image ({
+	  	x:50,
+	  	y:50,
+	  	width: 550,
+	  	height: 400,
+	  	image: images.background
+	  });
+	  
+      // body
+        var bodyImg = new Kinetic.Image({
+          x: 250,
+          y: 220,
+          image: images.body,
+          width: 750 * scale,
+          height: 460 * scale,
+          draggable: true,
+          dragBoundFunc: function(pos) {
+          	var newX = pos.x;
+          	var newY = pos.y;
+          	if(pos.y < 100) 
+          	{
+          		newY = 100;
+          	}
+          	else if (pos.y > 300)
+          	{
+          		newY = 300;
+          	}
+          	if(pos.x < 130) 
+          	{
+          		newX = 130;
+          	}
+          	else if (pos.x > 380)
+          	{
+          		newX = 380;
+          	}
+          	return {
+          		x: newX,
+          		y: newY
+          	};
+          }
+        });
+        
+        // arrange objects in grid next to body
+        var xval = 630;
+        var yval = 50;
+                    
+        for (var img in images){
+         if ((img != "background") && (img != "body") )
+         {
+        	imageObj = new Image();
+        	imageObj = images[img];
+            var newImg = new Kinetic.Image({
+                x: xval,
+                y: yval,
+                image: imageObj,
+                width: imageObj.width * scale,
+                height: imageObj.height * scale,
+                draggable: true
+            });
+        
+        newImg.on("dragstart", function(){
+                this.moveToTop();
+                var lay = this.getLayer()
+                lay.draw();
+            });
+            
+        newImg.on("mouseover", function(){
+                //this.showBorder();
+                var lay = this.getLayer()
+                lay.draw();
+                document.body.style.cursor = "pointer";
+            });
+         newImg.on("mouseout", function(){
+                //this.hideBorder();
+                var lay = this.getLayer()
+                lay.draw();
+                document.body.style.cursor = "default";
+            });
+
+            if (xval < 800)
+            {
+            	xval = xval + (newImg.getWidth()) + 20;
+            }
+            else {
+            	yval = yval + 150;
+            	xval = 630;
+            }
+            
+     		imgLayer.add(newImg);
+     		imgLayer.draw();
+        }
+        }
+
+        // add the shape to the layer
+        layer.add(backImage);
+        layer.add(bodyImg);
+
+        // add the layer to the stage
+        stage.add(layer);
+        stage.add(imgLayer);
+        
+    }
+    
+    window.onload = function(){
+            var sources = {
+                body: "images/body.gif",
+                eyes: "images/eyes.gif",
+                eyesup: "images/eyesup.gif",
+                tree: "images/tree.gif",
+                tophat: "images/tophat.gif",
+                santahat: "images/santahat.gif",
+                larry: "images/larry.gif",
+                bowtie: "images/bowtie.gif",
+                abebeard: "images/abebeard.gif",
+                ball: "images/ball.gif",
+                background: "images/background.gif"
+                
+            };
+            loadImages(sources, initStage);
+        };
+    
+      
+    </script>
+    </head>
+  <body onmousedown="return false;">     
+
+    <div id="container" float:left; ></div>
+    <div id="tools" float:left;></div>
+  </body>
+</html>
